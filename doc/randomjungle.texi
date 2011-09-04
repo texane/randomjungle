@@ -1,0 +1,1247 @@
+\input texinfo @c -*- texinfo -*-
+@comment ========================================================
+@comment %**start of header
+@setfilename randomjungle.info
+@include version.texi
+@settitle Random Jungle (RJ) @value{VERSION} machine learning
+@setchapternewpage odd
+@ifnothtml
+@setcontentsaftertitlepage
+@end ifnothtml
+@finalout
+
+@c @tabchar{}
+@c ----------
+@c The testsuite expects literal tab output in some examples, but
+@c literal tabs in texinfo lead to formatting issues.
+@macro tabchar
+@	@c
+@end macro
+
+@c @ovar{ARG}
+@c -------------------
+@c The ARG is an optional argument.  To be used for macro arguments in
+@c their documentation (@defmac).
+@macro ovar{varname}
+@r{[}@var{\varname\}@r{]}@c
+@end macro
+
+@c @dvar{ARG, DEFAULT}
+@c -------------------
+@c The ARG is an optional argument, defaulting to DEFAULT.  To be used
+@c for macro arguments in their documentation (@defmac).
+@macro dvar{varname, default}
+@r{[}@var{\varname\} = @samp{\default\}@r{]}@c
+@end macro
+
+@comment %**end of header
+@comment ========================================================
+
+@copying
+
+This manual (@value{UPDATED}) is for Random Jungle (RJ) version
+@value{VERSION}, a package containing an implementation of the Random Forests
+(TM) method.
+
+Copyright @copyright{} 2008-2010 Daniel F. Schwarz.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the @acronym{GNU} Free Documentation License,
+Version 1.2 or any later version published by the Free Software
+Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no
+Back-Cover Texts.  A copy of the license is included in the section
+entitled ``@acronym{GNU} Free Documentation License.''
+@end quotation
+@end copying
+
+
+@dircategory Text creation and manipulation
+@direntry
+* Random Jungle: (randomjungle).   A powerful random forests (TM) implementation.
+@end direntry
+
+@titlepage
+@title Random Jungle, version @value{VERSION}
+@subtitle A powerful Random Forests (TM) implementation
+@subtitle Edition @value{EDITION}, @value{UPDATED}
+@author by Daniel F. Schwarz
+@author (@uref{https://sourceforge.net/projects/randomjungle/support})
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Random Jungle
+@insertcopying
+@end ifnottex
+
+@code{Random Jungle} is an implementation of Random Forests (TM).
+It is mostly compatible to the original fortran code.
+@code{Random Jungle} also has additional builtin functions.  
+
+@code{Random Jungle} is written by Daniel F. Schwarz and few volunteers.
+All names and email addresses can be found in the
+files @file{randomjungle-@value{VERSION}/@/AUTHORS} and
+@file{randomjungle-@value{VERSION}/@/THANKS}
+from the Random Jungle distribution.
+
+This is release @value{VERSION}.  It is considered unstable:  future
+releases are meant to add new features, fix bugs, increase speed,
+or improve documentation.  However@dots{}
+
+@c An experimental feature, which would improve @code{Random Jungle} usefulness,
+@c allows for changing the syntax for what is a @dfn{word} in @code{Random Jungle}.
+@c You should use:
+@c @comment ignore
+@c @example
+@c ./configure --enable-changeword
+@c @end example
+@c @noindent
+@c if you want this feature compiled in. The current implementation
+@c slows down @code{Random Jungle} considerably and is hardly acceptable.  In the
+@c future, @code{Random Jungle} 2.0 will come with a different set of new features
+@c that provide similar capabilities, but without the inefficiencies, so
+@c changeword will go away and @emph{you should not count on it}.
+
+@menu
+* Preliminaries::               Introduction and preliminaries
+
+* Install::                     Compiling and installing
+
+* Invoking Random Jungle::      Invoking @code{Random Jungle}
+
+* Input data::                  Input data / files
+* Output data::                 Output data / files
+
+* Application::                 Some nice examples
+
+* Copying This Package::        How to make copies of the overall Random Jungle
+                                package
+* Copying This Manual::         How to make copies of this manual
+* Indices::                     Indices of concepts and macros
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction and preliminaries
+
+* Intro::                       Introduction to @code{Random Jungle}
+* History::                     Historical references
+* Bugs::                        Problems and bugs
+* Manual::                      Using this manual
+
+Install
+
+* Compiling and installing::    Compiling and installing @code{Random Jungle}
+
+Invoking @code{Random Jungle}
+
+* Operation modes::             Command line options for operation modes
+
+Input data
+
+* Input the whole data::        Input the data matrix / frame 
+* Restricted analysis::         Restrict analysis to specified variables
+
+
+Application
+
+* Example1::                    Simple example
+* Example2::                    Simple example with ped file
+* Example3::                    Estimating variable importance
+* Example4::                    Using R and rjungle
+* Example5::                    Using plink and rjungle
+* Example6::                    Prediction
+* Example7::                    Imputation
+* Example8::                    rjunglesparse
+@c * Example9::                    Using MPI
+@c randomjungle* Example9::                    Conditional Inference Forests (CIFs)
+@c * Example10::                    Conditional Inference Forests with SNPs(CIFs)
+
+How to make copies of the overall Random Jungle package
+
+* GNU General Public License::  License for copying the Random Jungle package
+
+How to make copies of this manual
+
+* GNU Free Documentation License::  License for copying this manual
+
+Indices of concepts
+
+* Concept index::               Index for many concepts
+
+@end detailmenu
+@end menu
+
+@node Preliminaries
+@chapter Introduction and preliminaries
+
+This first chapter explains what @code{Random Jungle} is, where
+@code{Random Jungle}
+comes from, how to read and use this documentation, how to call the
+@code{Random Jungle} program, and how to report bugs about it.  It concludes by
+giving tips for reading the remainder of the manual.
+
+The following chapters then detail all the features of the @code{Random Jungle}
+.
+
+@menu
+* Intro::                       Introduction to @code{Random Jungle}
+* History::                     Historical references
+* Bugs::                        Problems and bugs
+* Manual::                      Using this manual
+@end menu
+
+@node Intro
+@section Introduction to @code{Random Jungle}
+
+@cindex overview of @code{Random Jungle}
+@code{Random Jungle} is an implementation of Random Forests (TM).
+It is supposed to analyse high dimensional data.
+In genetics, it can be used for analysing big Genome Wide Association (GWA)
+data. Random Forests (TM) is a powerful machine learning method.
+Most interesting features are variable selection, missing value imputation,
+classifier creation, generalization error estimation and sample proximities
+between pairs of cases.
+
+@code{Random Jungle} is mostly compatible with the Linux and Windows (TM).
+Also, there exists compatibilities with Solaris.
+@c @xref{Compatibility}, for more details.
+
+
+@node History
+@section Historical references
+
+@cindex history of @code{Random Jungle}
+First ideas where seeded in 2006 during GAW15 workshop in Florida. 
+In the beginning of 2008, Daniel F. Schwarz released 0.5.0 and 0.5.1 which
+was a "way pre-release" and fast, but lagged of features and documentation.
+However, the williams award was won at the International Genetic Epidemiology
+Society (IGES) converence 2008 in St. Louis with release 0.5.2.
+In late 2008 and 2009, intensive
+work improved the platform compatibility, added documentation and
+raised the number of features of @code{Random Jungle}.
+
+@node Bugs
+@section Problems and bugs
+
+@cindex reporting bugs
+@cindex bug reports
+@cindex suggestions, reporting
+If you have problems with @code{Random Jungle} or think you've found a bug,
+please report it.  Before reporting a bug, make sure you've actually
+found a real bug.  Carefully reread the documentation and see if it
+really says you can do what you're trying to do.  If it's not clear
+whether you should be able to do something or not, report that too; it's
+a bug in the documentation!
+
+Before reporting a bug or trying to fix it yourself, try to isolate it
+to the smallest possible input file that reproduces the problem.  Then
+send us the input file and the exact results @code{Random Jungle} gave you.  
+Also say what you expected to occur; this will help us decide whether the
+problem was really in the documentation.
+
+Once you've got a precise problem, send e-mail to
+@uref{https://sourceforge.net/projects/randomjungle/support}.  Please include the version number of
+@code{Random Jungle} you are using.  You can get this information with the
+command @kbd{rjungle --version} or @kbd{rjungle -Z}.
+@c Also provide details about the platform you are
+@c executing on.
+
+Non-bug suggestions are always welcome as well.  If you have questions
+about things that are unclear in the documentation or are just obscure
+features, please report them too.
+
+@node Manual
+@section Using this manual
+
+@cindex examples, understanding
+This manual contains a number of examples of @code{Random Jungle} input and
+output,
+and a simple notation is used to distinguish input, output and error
+messages from @code{Random Jungle}.  Examples are set out from the normal text,
+and shown in a fixed width font, like this
+
+@comment ignore
+@example
+This is an example of an example!
+@end example
+
+To distinguish input from output, all output from @code{Random Jungle} is
+prefixed
+by the string @samp{@result{}}, and all error messages by the string
+@samp{@error{}}.  When showing how command line options affect matters,
+the command line is shown with a prompt @samp{$ @kbd{like this}},
+otherwise, you can assume that a simple @kbd{rjungle} invocation will work.
+Thus:
+
+@comment ignore
+@example
+$ @kbd{command line to invoke rjungle}
+Example of input line
+@result{}Output line from rjungle
+@error{}and an error message
+@end example
+
+The sequence @samp{^D} in an example indicates the end of the input
+file.  The sequence @samp{@key{NL}} refers to the newline character.
+The majority of these examples are self-contained, and you can run them
+with similar results by invoking @kbd{rjungle -d}.  In fact, the testsuite
+that is bundled in the Random Jungle package consists of the examples
+in this document!  Some of the examples assume that your current
+directory is located where you unpacked the installation, so if you plan
+on following along, you may find it helpful to do this now:
+
+@comment ignore
+@example
+$ @kbd{cd randomjungle-@value{VERSION}}
+@end example
+ 
+@c @deffn Composite example (@var{string}, @dvar{count, 1}, @
+@c   @ovar{argument}@dots{})
+@c This is a sample prototype.  There is not really a macro named
+@c @code{example}, but this documents that if there were, it would be a
+@c Composite macro, rather than a Builtin.  It requires at least one
+@c argument, @var{string}.  Remember that in @code{Random Jungle}, there must not be a
+@c space between the macro name and the opening parenthesis, unless it was
+@c intended to call the macro without any arguments.  The brackets around
+@c @var{count} and @var{argument} show that these arguments are optional.
+@c If @var{count} is omitted, the macro behaves as if count were @samp{1},
+@c whereas if @var{argument} is omitted, the macro behaves as if it were
+@c the empty string.  A blank argument is not the same as an omitted
+@c argument.  For example, @samp{example(`a')}, @samp{example(`a',`1')},
+@c and @samp{example(`a',`1',)} would behave identically with @var{count}
+@c set to @samp{1}; while @samp{example(`a',)} and @samp{example(`a',`')}
+@c would explicitly pass the empty string for @var{count}.  The ellipses
+@c (@samp{@dots{}}) show that the macro processes additional arguments
+@c after @var{argument}, rather than ignoring them.
+@c @end deffn
+@c 
+@c @cindex numbers
+@c All macro arguments in @code{Random Jungle} are strings, but some are given
+@c special interpretation, e.g., as numbers, file names, regular
+@c expressions, etc.  The documentation for each macro will state how the
+@c parameters are interpreted, and what happens if the argument cannot be
+@c parsed according to the desired interpretation.  Unless specified
+@c otherwise, a parameter specified to be a number is parsed as a decimal,
+@c even if the argument has leading zeros; and parsing the empty string as
+@c a number results in 0 rather than an error, although a warning will be
+@c issued.
+@c 
+@c This document consistently writes and uses @dfn{builtin}, without a
+@c hyphen, as if it were an English word.  This is how the @code{builtin}
+@c primitive is spelled within @code{Random Jungle}.
+
+@node Install
+@chapter Compiling and installing
+@cindex compiling and installing
+
+@menu
+* Compiling and installing::  Compiling and installing @code{Random Jungle}
+@end menu
+
+@node Compiling and installing
+@section Compiling and installing @code{Random Jungle}
+There are pre-compiled versions
+on the internet site @uref{https://sourceforge.net/projects/randomjungle}.
+Maybe, there exists a pre-compiled version for your
+platform (computer) and you do not need to compile it.
+@c If you are
+@c searching for a Windows version, look out for @code{rjungle-...-...-...-cygwin}.
+
+@code{Random Jungle} uses some GNU tools, libraries and other free
+open source code. The installation routine (@code{./configure}) prompt you
+to install packages which are missing on your machine. 
+It is also recommended to compile the sources with an openMP supporting
+compiler (i.e. GNU gcc > 4.2).
+Invoke the following commands to compile @code{rjungle}:
+
+@table @code
+@item ./configure
+@item make
+@item make check 
+@item make install
+@end table
+
+@c For compiling @code{Random Jungle} with MPI (message passing interface)
+@c support, configure @code{RJ} using option @code{--enable-mpi}.
+@c The program is optimized for Open MPI
+@c (@uref{http://www.open-mpi.org/}). The MPI mode should be used by experienced
+@c users only.
+@c 
+@c @table @code
+@c @item ./configure --enable-mpi
+@c @end table
+
+@node Invoking Random Jungle
+@chapter Invoking @code{Random Jungle}
+
+@cindex command line
+@cindex invoking @code{Random Jungle}
+The format of the @code{Random Jungle} command is:
+
+@comment ignore
+@example
+@code{rjungle} @r{[}@var{option}@dots{}@r{]}
+@end example
+or
+
+@comment ignore
+@example
+@code{rjunglesparse} @r{[}@var{option}@dots{}@r{]}
+@end example
+
+@cindex command line, options
+@cindex options, command line
+@cindex @env{POSIXLY_CORRECT}
+All options begin with @samp{-}, or if long option names are used, with
+@samp{--}.  On some platforms long options might not work.
+A long option name need not be written completely, any
+unambiguous prefix is sufficient.  @acronym{POSIX} requires @code{Random Jungle} to
+recognize arguments intermixed with files, even when
+@env{POSIXLY_CORRECT} is set in the environment.  Most options take
+effect at startup regardless of their position, but some are documented
+below as taking effect after any files that occurred earlier in the
+command line.  The argument @option{--} is a marker to denote the end of
+options.
+
+With short options, options that do not take arguments may be combined
+into a single command line argument with subsequent options, options
+with mandatory arguments may be provided either as a single command line
+argument or as two arguments, and options with optional arguments must
+be provided as a single argument.  In other words,
+@kbd{rjungle -QPDfoo -d a -df} is equivalent to
+@kbd{rjungle -Q -P -D foo -d -df -- ./a}, although the latter form is
+considered canonical.
+
+With long options, options with mandatory arguments may be provided with
+an equal sign (@samp{=}) in a single argument, or as two arguments, and
+options with optional arguments must be provided as a single argument.
+In other words, @kbd{rjungle --def foo --debug a} is equivalent to
+@kbd{rjungle --define=foo --debug= -- ./a}, although the latter form is
+considered canonical (not to mention more robust, in case a future
+version of @code{Random Jungle} introduces an option named @option{--default}).
+
+@code{Random Jungle} understands the following options, grouped by functionality.
+
+@menu
+* Operation modes::             Command line options for operation modes
+@end menu
+
+@node Operation modes
+@section Command line options for operation modes
+
+Several options control the overall operation of @code{rjungle}:
+
+@table @code
+@item -h
+@item --help
+Print a help summary on standard output, then immediately exit
+@code{rjungle} without reading any input files or performing any other
+actions.
+
+@item -Z
+@item --version
+Print the version number of the program on standard output, then
+immediately exit @code{rjungle} without reading any input files or
+performing any other actions.
+
+@itemx -f @var{FILENAME}
+@itemx --file=@var{FILENAME}
+@var{FILENAME} of input file with data.  Input data has to been numerical.
+The default @var{FILENAME} is input.dat(.gz).
+In R (@uref{http://www.r-project.org}), save data to file using
+@code{write.table} as follows:
+@comment options: -f
+@example
+> @kbd{make.your.data.in.R}
+> @kbd{write.table(yourData, file = "input.dat", row.names = FALSE, quote = FALSE)}
+> @kbd{quit()}
+$ @kbd{rjungle -f input.dat [...]}
+@end example
+
+In plink (@uref{pngu.mgh.harvard.edu/~purcell/plink/}), save data to raw file
+using the recodeA option, set the ped file option and char memory mode option in
+@code{rjungle} as follows: 
+@comment options: -f
+@example
+$ @kbd{@code{plink --file yourDataFile --recodeA}}
+$ rjungle -f yourDataFile.raw -p -M 2 [...]
+@end example
+
+Avoid missing values in data.
+See @xref{Input data}, for more details. 
+
+
+@item -o @var{FILEPREFIXNAME}
+@itemx --outprefix=@var{FILEPREFIXNAME}
+@var{FILEPREFIXNAME} of output files is the first part of output files 
+(i.e. @code{rjungle.importance}, @code{rjungle.prediction}, @dots{}).
+The default @var{FILEPREFIXNAME} is @code{rjungle}. Use for example
+@code{-o my_analysis_no123}. 
+@c See @xref{Output data}, for more details. 
+
+
+@item -e @var{CHAR}
+@itemx --delimeter=@var{CHAR}
+Set the delimeter in your input file to @var{CHAR}. Default is a space.
+@c See @xref{Input data}, for more details. 
+
+@item -w2
+Save model (forest) to a file @var{FILEPREFIXNAME}@code{.jungle.xml}.
+
+@item -P @var{FILENAME}
+Predict data with model (forest) in file @var{FILENAME} (data is given with option @code{-f}). Predictions will be
+written to @var{FILEPREFIXNAME}@code{.prediction}.
+
+@item -y @var{ID}
+@itemx --treetype=@var{ID}
+Choose base classifier by setting @var{ID}
+There are serveral
+treetypes but only CART is fully supported. 
+Explanatory or exposure variables will be named: input variables.
+Explained or response variable will be named: output variable.
+If you want to use
+CART like Random Forest (TM) does choose one of three possible values as
+follows:
+@deffn @var{ID} = 1 or 5
+  CART,
+  y (output variable): nominal,
+  x (input variable(s)): numeric,
+  @var{ID} = 1 is recommended for less different values in the
+  input variables (i.e. GWA SNP data or integer data).
+  @var{ID} = 5 is recommended for more different values in the
+  input variables (i.e. many floating point numbers).
+  Like original Breiman/Cutler/Friedman algorithm.
+@end deffn
+@deffn @var{ID} = 2
+  CART,
+  y (output variable): nominal,
+  x (input variable(s)): nominal,
+@end deffn
+@deffn @var{ID} = 3
+  CART regression trees,
+  y (output variable): numeric,
+  x (input variable(s)): numeric,
+@end deffn
+@deffn @var{ID} = 4
+  CART regression trees,
+  CART regression trees,
+  y (output variable): numeric,
+  x (input variable(s)): nominal,
+@end deffn
+
+@c @deffn @var{ID} = 101
+@c   Conditional Inference Trees (T. Hothorn et al. Unbiased Recursive Partitioning 2006 JCGS),
+@c   y (output variable): nominal,
+@c   x (input variable(s)): numeric,
+@c   With identity transformation g(x) = x and h(y) = e(y)
+@c   the unit vector of length K with class of y being equal to one.
+@c @end deffn
+@c @deffn @var{ID} = 111
+@c   Conditional Inference Trees,
+@c   y (output variable): numeric,
+@c   x (input variable(s)): nominal (two-sample). For analysing SNP data with
+@c   additive effects. No correction for multiple testing. Alpha can be specified
+@c   by option @code{-Q alpha} (default alpha = 0.1). You should use option
+@c   @code{-l 20} or more than 20 (minimal partition size).
+@c   With identity transformation g(x) = x and h(y) = e(y)
+@c   the unit vector of length 2 with class of y being equal to one.
+@c @end deffn
+
+Default is a 1.
+@c See @xref{Input data}, for more details. 
+
+
+@item -t @var{SIZE}
+@itemx --ntree=@var{SIZE}
+@var{SIZE} is the number of trees in jungle. If @var{SIZE}=0 then the size will
+be set automatically depending on mtry and variable size
+(experimental feature). Default is 500.
+
+
+@item -m @var{SIZE}
+@itemx --mtry=@var{SIZE}
+@var{SIZE} of randomly choosen variable sets. At each node building step,
+a variable will be selected out of the set, that serves the biggest information
+gain. The bigger @var{SIZE} is set, the higher computing time might be. 
+The bigger @var{SIZE} is set, the more similar trees in jungle will be.
+High noised data sets should processed with a big @var{SIZE}.
+Default is square root of number of input variables.
+
+
+@item -x @var{NUM}
+@itemx --missingcode=@var{NUM}
+Missings should always coded as @code{NA} or @var{NUM} in your data.
+The program takes @var{NUM} as a internal representation of a missing value.
+Default is -99.
+
+
+@item -i @var{ID}
+@itemx --impmeasure=@var{ID}
+Variable selection: Choose an method for estimating variable importance as
+follows:
+@deffn @var{ID} = 1
+  Intrinsic Importrance (i.e. GINI-Index).
+@end deffn
+@deffn @var{ID} = 2
+  Permutation Importance by Breiman, Cutler (observed in Fortran code).
+@end deffn
+@deffn @var{ID} = 3
+  Permutation Importance by Liaw, Wiener (in R-package RandomForest).
+@end deffn
+@deffn @var{ID} = 4
+  Permutation Importance, raw values, no normalization.
+@end deffn
+@deffn @var{ID} = 5
+  Permutation Importance by Meng et. al
+@end deffn
+The results will be written to file  @var{FILEPREFIXNAME}@code{.importance}.
+Default is 1 and you can not turn off variable importance output.
+
+
+@item -B @var{ID}
+Variable selection/ model optimization:
+Choose an method for estimating variable importance as
+follows:
+@deffn @var{ID} = 0
+  No backward elimination.
+@end deffn
+@deffn @var{ID} = 1
+  Backward elimination. Discard 50% at each step (slow).
+  Stop if number of variables shrinked to @var{STOPSIZE}, see option @code{-j}.
+@end deffn
+@deffn @var{ID} = 2
+  Backward elimination. Discard 33% at each step (slow).
+  Stop if number of variables shrinked to @var{STOPSIZE}, see option @code{-j}.
+@end deffn
+@deffn @var{ID} = 3
+  Backward elimination. Discard only negative values at
+  each step (slow/recommended). (Shown at IGES2007 by Inke R. Konig).
+@end deffn
+Default is 0.
+
+
+@item -j @var{STOPSIZE}
+@itemx --nimpvar=@var{STOPSIZE}
+Only necessary if @code{--impmeasure} = 2,3,5,6 or 7. How many variable should
+remain. The lesser @var{STOPSIZE} is, the reliable the result might be. The
+smaller SIZE is, the higher computing time will be.
+Default is 100.
+
+
+@item -v
+@itemx --verbose
+Print some nice information to screen. Otherwise put information to
+file @var{FILEPREFIXNAME}@code{.verbose} (default).
+
+
+@item -u
+@itemx --downsampling
+Choose randomly samples without replacement. Switched off is default.
+
+@item -M @var{ID}
+@itemx --memmode=@var{ID}
+Usage of the heap memory (RAM) as follows:
+@deffn @var{ID} = 0
+  Double precision floating point (BIG).
+@end deffn
+@deffn @var{ID} = 1
+  Single precision floating point (Normal).
+@end deffn
+@deffn @var{ID} = 2
+  Char (small). CHAR normally fits in one byte. DATA CELL VALUE HAS TO BE
+  AN INTEGER IN [-127..127].
+@end deffn
+If you want to use very small data coding, i.e. for SNP analysis,
+give @code{rjunglesparse} a try!
+Default is 0.
+
+
+@item -C @var{FILE}
+@itemx --colselection=@var{FILE}
+Only use selected columns listed in @var{FILE}. Example content of @var{FILE}:
+@comment options: -f
+@example
+var1
+var20
+var1000
+var300
+@end example
+Default is take all variables. 
+
+
+@item -D @var{NAME}
+@itemx --depvarname=@var{NAME}
+Output variable name in the data SET! If @var{NAME} is empty then the
+@code{rjungle} switches to unsupervised mode.
+
+
+@item -s
+@itemx --sampleproximities
+It computes proximities between pairs of cases that can be
+used in clustering, locating outliers, or (by scaling)
+give interesting views of the data. Can be used as the
+distance matrix for Multidimensional Scaling (MDS).
+The results will be written to file  @var{FILEPREFIXNAME}@code{.samproximity}.
+Default: switched off
+
+
+@item -z
+@itemx --seeed
+Seed of random number generators.
+
+
+@item -U
+@itemx --nthreads=@var{NUM}
+Maximally use @var{NUM} threads (CPUs) for parallel processing.
+Limit for @var{NUM} is number of CPUs in computer.
+Default: Number of CPUs in computer.
+
+
+@item -p
+@itemx --pedfile
+Input file has got ped format (i.e. plink output with recodeA).
+Default: switched off.
+
+
+@item -I @var{NUM}
+@itemx --impute=@var{NUM}
+Impute missings in input data using Random Forest(TM)'s imputation algorithm.
+The number of iterations is given by @var{NUM}.
+For imputing continuous data, use option @code{-A} (@code{--impcont}) as well.
+For more information, have a look at
+@uref{http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm}.
+Do not try to impute untyped SNPs (Schwarz et al. 2009, BMC Proceedings, 3, S65) if
+case-control-status is missing.
+Try a different program like: IMPUTE, MACH, PLINK, ...
+Default: switched off.
+
+
+@item -k @var{NUM}
+@itemx --maxtreedepth=@var{NUM}
+This is a stop criterium/tunning parameter. Tree growing will stop, when
+the tree exceeds a depth of @var{NUM}.
+Default: switched off.
+
+
+@item -l @var{NUM}
+@itemx --targetpartitionsize=@var{NUM}
+This is a stop criterium/tunning parameter. Tree growing will stop, when
+a partion falls below a size of @var{NUM} samples.
+Default: switched off.
+
+
+
+
+@item -d -g -n -r -c -a -b -w -V -S -P -A -G -E -X
+Those options are experimental. Be cautious about using one of those.
+@end table
+
+
+@node Input data
+@chapter Input data
+@cindex input data
+
+This chapter describes various input file types of @code{rjungle}.
+
+@menu
+* Input the whole data::        Input the data matrix / frame 
+* Restricted analysis::           Restrict analysis to specified variables
+@end menu
+
+@node Input the whole data
+@section Input the whole data
+@cindex Input the whole data
+
+@code{Random Jungle} analyses data given in a file, see option @code{-f}.  The
+file format is matrix like and is as follows:
+@deffn Variable names
+  The first line of the input file contains the variable names.  The variable
+  name must not contain quotes or space charaters.  The variables are seperated
+  by space charaters.
+@end deffn
+@deffn Data cells
+  Each following line represents one sample (observation).  Every single sample
+  needs to have one numerical value for each variable.  The values are seperated
+  by space charaters and are ordered corresponding to the variable names
+  (of course).
+@end deffn
+
+Here, an example of an input file:
+@example
+@code{responseVar inputVar1 inputVar2 inputVar3 inputVar4}
+@code{0 1.2 3.4 5.6 7.8}
+@code{0 1.1 3.3 5.5 7.7}
+@code{0 2.2 4.4 6.6 8.8}
+@code{1 1.0 3.0 5.0 7.0}
+@code{1 1.0 3.0 5.0 7.0}
+@code{1 2.0 4.0 6.0 8.0}
+@end example
+
+If you choose the ped file option @code{-p} then the input file format is ped
+like.  The file must have variables FID, IID, PAT, MAT, SEX, PHENOTYPE and
+at least three variables (SNPs).
+Here, an example of an input file:
+@example
+@code{FID IID PAT MAT SEX PHENOTYPE rs1 rs2 rs3 rs4}
+@code{1000 NA2001 0 0 2 0 0 1 0 1}
+@code{1000 NA2002 0 0 2 0 0 2 0 1}
+@code{1001 NA2003 0 0 1 0 1 2 0 1}
+@code{1001 NA2004 0 0 1 0 1 1 1 1}
+@code{1002 NA2005 0 0 2 1 1 1 1 1}
+@code{1004 NA2006 0 0 2 1 1 2 1 1}
+@code{1005 NA2007 0 0 2 1 2 2 2 2}
+@code{1006 NA2008 0 0 1 1 2 2 2 2}
+@code{1007 NA2008 0 0 1 1 2 2 2 2}
+@end example
+
+
+@node Restricted analysis
+@section Restricted analysis
+@cindex restricted analysis
+The @code{rjungle} can be run also with just a subset of all variables
+which are given in the input file (option @code{-f}). 
+See description of option @code{-C}, for more details.
+
+
+@node Output data
+@chapter Output data
+@cindex output data
+
+This chapter describes various output file types of @code{rjungle}.
+
+@menu
+* Standard files::         The standard output files
+* Log file::               The logging file
+* Confusion file::         The Confusion file
+* Prediction file::        The Prediction file
+* Importance file::        The Importance file
+* Verbose file::           The verbose file
+
+@end menu
+
+@node Standard files
+@section The standard output files
+@cindex Standard files
+
+If @code{rjungle} is executed it will always produce three files.
+See @ref{Log file}, @ref{Confusion file} and @ref{Importance file}.
+You can run an example in your @code{randomjungle-@value{VERSION}} directory
+and see it. 
+@example
+$ @kbd{cd tests}
+$ @kbd{rjungle -f test.ped -p -v -M2}
+$ @kbd{ls}
+rjungle.importance  rjungle.log  rjungle.prediction  test.ped
+@end example
+
+
+@node Log file
+@section Log file
+@cindex log file
+
+The log file contains all options / parameter of the @code{rjungle} execution.
+This is useful to reproduce results.
+
+
+@node Confusion file
+@section Confusion file
+@cindex confusion file
+
+The @code{rjungle} always evaluates the classifier.  The accuracy on training
+and test data. Test data is called oob data which is collected during 
+growing process (similar to cross validation's test sets).  The results are
+shown in so-called confusion matrices in file 
+@var{FILEPREFIXNAME}@code{.confusion}.  Columns represent the predicted values
+and rows represent the real values.
+
+When using option @code{-y1} a file @var{FILEPREFIXNAME}@code{.confusion2} will
+be created. The file contains class specific error rates.
+
+@node Prediction file
+@section Prediction file
+@cindex prediction file
+
+The @code{rjungle} is able to perform new data to a saved classifier (option
+@code{-w2} and @code{-P}).  The predicted results will be saved to file 
+@var{FILEPREFIXNAME}@code{.prediction}.
+
+@node Importance file
+@section Importance file
+@cindex importance file
+
+@code{Random Jungle} estimates the importance of variables (option
+@code{-i}).  The results are saved to file
+@var{FILEPREFIXNAME}@code{.importance} and/or
+@var{FILEPREFIXNAME}@code{.importance2}.  The first file contains four columns
+but most interesting columns are @code{varname} (variable name) and @code{value}
+(importance value).  The higher the @code{value}, the more important is the
+variable with name @code{varname}.  This list is sorted ascending.  So, look
+at the tail of file to see the most important variables.
+The second file contains various permutation importance informations.
+
+
+@node Verbose file
+@section Verbose file
+@cindex verbose file
+
+
+If @code{Random Jungle} is invoked from command line without verbose option
+it is very schtum and do not output anything to screen.  It writes all
+information occuring during a run to file @var{FILEPREFIXNAME}@code{.verbose}.
+Nevertheless, if you want a takly @code{rjungle} which puts all process
+information to screen then use option (@code{-v})
+
+@comment ignore
+@example
+$ @kbd{cd tests}
+$ @kbd{rjungle -f test.ped -p -v}
+
++---------------------+-----------------+-------------------+
+|    RandomJungle     |      ......     |        2010       |
++---------------------+-----------------+-------------------+
+|  (C) 2010 Daniel Frederik Schwarz et al., GNU GPL, v2     |
++-----------------------------------------------------------+
+
+Output to: 
+rjungle.*
+loading data... 
+Read 9 row(s) and 10 column(s).
+Use 9 row(s) and 6 column(s).
+dependent variable name: PHENOTYPE
+Growing jungle...
+Number of variables: 6 mtry = 2
+1 thread(s) growing 500 tree(s)
+Growing time estimate: ~0 sec.
+Generating and collecting output data...
+Compiling trees.
+Writing accuracy information...
+calculating confusion matrix...
+
+Elapsed time: 0 sec
+
+$
+@end example
+
+
+@node Application 
+@chapter Some nice examples 
+@cindex application
+
+This chapter describes various examples of working with @code{rjungle}.
+You can run the examples in your
+@code{randomjungle-@value{VERSION}}/tests directory.
+
+@menu
+* Example1::                    Simple example
+* Example2::                    Simple example with ped file
+* Example3::                    Estimating variable importance
+* Example4::                    Using R and rjungle
+* Example5::                    Using plink and rjungle
+* Example6::                    Prediction
+* Example7::                    Imputation
+* Example8::                    rjunglesparse
+@c * Example9::                    Using MPI
+@c * Example9::                    Conditional Inference Forests (CIFs)
+@c * Example10::                    Conditional Inference Forests with SNPs (CIFs)
+@end menu
+
+@node Example1
+@section Simple example 
+@cindex simple example
+
+We want to grow a simple forest. So, our input data contains 9 input
+(@code{V1-V9}) and 1 output variable(@code{y}).
+8 output variables are non informative. Only variable @code{V1} is
+informative. 
+
+@example
+$ @kbd{rjungle -f test.dat -U1 -z1 -v -D y -o example1}
+$ @kbd{ls example1.*}
+...
+@end example
+
+
+@node Example2
+@section Simple example with ped file
+@cindex simple example with ped file
+
+Using Plink PED-files:
+
+@example
+$ @kbd{rjungle -f test.ped -p -o example2}
+...
+@end example
+
+
+@node Example3
+@section Estimating variable importance 
+@cindex variable importance
+
+In the first example we used the data in file  @code{test.dat}. As we know,
+only variable @code{V1} is informative and therefore it is the most important
+variable. Firstly, lets estimate the fast GINI-Importance with 1000 trees.
+
+@example
+$ @kbd{rjungle -f test.dat -U1 -z1 -t1000 -v -D y -o example3.1}
+$ @kbd{cat example3.1.importance}
+...
+@end example
+
+We see that variable @code{V1} is the most important (highest value).
+
+Secondly, we now want to estimate the permutation importance.
+@example
+$ @kbd{rjungle -f test.dat -U1 -z1 -t1000 -v -D y -i2 -o example3.2}
+$ @kbd{cat example3.2.importance2}
+...
+@end example
+
+Now, we got even a more reliable result.  In most cases, only variable 
+@code{V1} is positive. It means that only @code{V1} contributes to
+a high accurate classification.
+
+@node Example4
+@section Using R and rjungle
+@cindex r rjungle
+
+We want to analyse data from R.
+
+@example
+$ R
+...
+> mydata = iris
+> mydata$Species = as.integer(mydata$Species) # convert factor to integer
+> write.table(mydata, file = "data_from_r.dat",
++   row.names = FALSE, quote = FALSE)
+> quit("no")
+$ @kbd{rjungle -f data_from_r.dat -U1 -z1 -t500 -v -D Species -o example4}
+$ @kbd{cat example4.confusion}
+...
+$ @kbd{cat example4.importance}
+...
+@end example
+
+
+@node Example5
+@section Using plink and rjungle 
+@cindex plink rjungle
+
+@example
+$ @kbd{plink --file gwadata --recodeA}
+$ @kbd{rjungle -f plink.raw -p -M2 -v -o example5}
+...
+$ @kbd{tail example5.importance}
+@end example
+
+or 
+
+@example
+$ @kbd{plink --file gwadata --recodeA}
+$ @kbd{rjunglesparse -f plink.raw -p -v -o example5}
+...
+$ @kbd{tail example5.importance}
+@end example
+ 
+The @code{rjunglesparse} uses less memory than @code{rjungle}. But
+your data should only use the values 0,1,2 and 3(missing code).
+
+
+@node Example6
+@section Prediction
+@cindex prediction
+
+@example
+$ @kbd{rjungle -f train.dat -D DependVar -v -w2 -o example6a}
+...
+$ @kbd{rjungle -f test.dat -D DependVar -v -P example6a.jungle.xml -o example6b}
+$ @kbd{cat example6b.confusion}
+$ @kbd{cat example6b.prediction}
+...
+@end example
+
+
+@node Example7
+@section Imputation
+@cindex Imputation
+
+SNP data (raw/fast imputation):
+
+@example
+$ @kbd{rjunglesparse -f mypedfile.raw -p -t1 -I1 -o example7_1_1}
+@end example
+
+The imputation result was written to example7_1_1.imputed.dat.gz and
+can be used for analysis.
+E.g.:
+
+@example
+$ @kbd{rjunglesparse -f example7_1_1.imputed.dat.gz -p ... -o example8_1_2}
+@end example
+
+Imputing continuous data:
+@example
+$ @kbd{rjungle -f continuous.dat -A -D DependVar -I6 -o example7_2}
+@end example
+
+or imputing categorical data:
+
+@example
+$ @kbd{rjungle -f cate.dat -D DependVar -I6 -o example7_3}
+@end example
+
+or imputing data with no groups to classify on (unsupervised learning):
+
+@example
+$ @kbd{rjungle -f continuousAndNoGroups.dat -A -I5 -o example7_4}
+@end example
+
+
+@node Example8
+@section Using plink and rjunglesparse
+@cindex plink rjungle
+
+The @code{rjunglesparse} is the same program like @code{rjungle}, but you can
+use just a small set of values: 0,1,2 (and 3 as missing coding). You might
+want to use @code{rjunglesparse} in conjunction with @code{plink}.
+The memory consumption of @code{rjunglesparse} is very small.
+
+@example
+$ @kbd{plink --file gwadata --recodeA}
+$ @kbd{rjunglesparse -f plink.raw -p -v -o example8}
+...
+$ @kbd{tail example8.importance}
+@end example
+
+@c @node Example9
+@c @section Using MPI
+@c @cindex rjungle mpi MPI
+@c 
+@c For high speed parallel processing, @code{RJ} could be used on computer
+@c clusters using MPI mode (@code{RJ} has to be compiled for MPI!). The program
+@c was performed on huge data successfully using 150 processors (300 processes) in
+@c parallel on a high performance cluster. However, the MPI mode should be used by
+@c experienced users only. In MPI mode, performing permutation importance (option
+@c @code{-i2}, .., @code{-i5}) is allow exclusivly.  Execute @code{RJ} as follows:
+@c 
+@c @example
+@c $ @kbd{plink --file gwadata --recodeA}
+@c $ @kbd{mpirun -np 200 --host hostname1, hostname2, ... rjunglesparse -f plink.raw -p -v -i4 -o example9}
+@c ...
+@c $ @kbd{tail example9.importance}
+@c @end example
+@c 
+@c Each process writes temp files to working directory (@code{example9_mpi_id_*.*}). Final results are written to usual files (@code{example9.*}). 
+
+@c @node Example9
+@c @section Conditional Inference Forests (CIFs)
+@c @cindex CIFs
+
+@c @example
+@c $ R
+@c ...
+@c > mydata = iris
+@c > mydata$Species = as.integer(mydata$Species) # convert factor to integer
+@c > write.table(mydata, file = "data_from_r.dat", row.names = FALSE, quote = FALSE)
+@c > quit("no")
+@c $ @kbd{rjungle -f data_from_r.dat -U1 -z1 -t500 -v -D Species -i3 -Q 0.3 -y14 -l20 -o example9}
+@c $ @kbd{cat example9.confusion}
+@c ...
+@c $ @kbd{cat example9.importance}
+@c ...
+@c @end example
+
+
+@c @node Example10
+@c @section Conditional Inference Forests with SNPs (CIFs)
+@c @cindex CIFs
+@c 
+@c @example
+@c $ @kbd{plink --file gwadata --recodeA}
+@c $ @kbd{rjunglesparse -f plink.raw -p -v -y13 -l20 -o example10}
+@c ...
+@c $ @kbd{tail example10.importance}
+@c @end example
+   
+
+
+@c ========================================================== Appendices
+
+@node Copying This Package
+@appendix How to make copies of the overall Random Jungle package
+@cindex License, code
+
+This appendix covers the license for copying the source code of the
+overall Random Jungle package.  This manual is under a different set of
+restrictions, covered later (@pxref{Copying This Manual}).
+
+@menu
+* GNU General Public License::  License for copying the Random Jungle package
+@end menu
+
+@node GNU General Public License
+@appendixsec License for copying the Random Jungle package
+@cindex GPL, GNU General Public License
+@cindex GNU General Public License
+@cindex General Public License (GPL), GNU
+@include gpl-3.0.texi
+
+@node Copying This Manual
+@appendix How to make copies of this manual
+@cindex License, manual
+
+This appendix covers the license for copying this manual.  Note that
+some of the longer examples in this manual are also distributed in the
+directory @file{Random Jungle-@value{VERSION}/@/examples/}, where a more
+permissive license is in effect when copying just the examples.
+
+@menu
+* GNU Free Documentation License::  License for copying this manual
+@end menu
+
+@node GNU Free Documentation License
+@appendixsec License for copying this manual
+@cindex FDL, GNU Free Documentation License
+@cindex GNU Free Documentation License
+@cindex Free Documentation License (FDL), GNU
+@include fdl.texi
+
+@node Indices
+@appendix Indices of concepts and macros
+
+@menu
+* Macro index::                 Index for all @code{rjungle} macros
+* Concept index::               Index for many concepts
+@end menu
+
+@node Macro index
+@appendixsec Index for all @code{rjungle} macros
+
+This index covers all @code{rjungle} builtins, as well as several useful
+composite macros.  References are exclusively to the places where a
+macro is introduced the first time.
+
+@printindex fn
+
+@node Concept index
+@appendixsec Index for many concepts
+
+@printindex cp
+
+@bye
+
+@c Local Variables:
+@c coding: iso-8859-1
+@c fill-column: 72
+@c ispell-local-dictionary: "american"
+@c indent-tabs-mode: nil
+@c whitespace-check-buffer-indent: nil
+@c End:
