@@ -1,6 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-RJ_DIR=$HOME/repo/randomjungle/trunk ;
+RJ_DIR=$HOME/repo/randomjungle ;
 RJ_O="" ;
 
 for f in \
@@ -32,6 +32,7 @@ cpp_name=$f;
 o_name=${cpp_name/.cpp/.o};
 g++ \
 -Wall \
+-fpermissive \
 -Wno-unused-variable \
 -Wno-unused-but-set-variable \
 -Wno-unused-function \
