@@ -480,7 +480,7 @@ typedef struct buftab_struct
   char ***strings;
 } buftab;
 
-char *bufstr(buftab *bt,int i,int j);
+const char *bufstr(buftab *bt,int i,int j);
 void fprint_buftab( FILE *s, buftab *bt);
 void init_buftab( buftab *bt, int rows, int cols);
 void free_buftab_contents(buftab *bt);
