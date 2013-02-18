@@ -94,7 +94,7 @@ double Verbosity = 0.0;
 
 int Ignore_next_n = 0;
 
-void my_error(char *string)
+void my_error(const char *string)
 {
   printf("***** Auton software error:\n***** %s\n",string);
   exit(-1);
@@ -922,9 +922,9 @@ bool is_power_of_two(int x)
   return result;
 }
 
-char *bufstr(buftab *bt,int i,int j)
+const char *bufstr(buftab *bt,int i,int j)
 {
-  char *result;
+  const char *result;
 
   if ( i < 0 || i >= bt->rows || j < 0 || j >= bt->cols )
   {

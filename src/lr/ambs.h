@@ -156,7 +156,7 @@ void my_warning_no_wait(char *string);
     waits for a key before exitting so that in the debugger you get hit
     cntrl-c and examine the program stack
 */
-void my_error(char *string);
+void my_error(const char *string);
 
 /** You should should use my_assert( boolean statement ) to assert
    facts that you want checked for code correctness. */
